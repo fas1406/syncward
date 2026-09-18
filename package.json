@@ -1,0 +1,23 @@
+{
+  "name": "syncward",
+  "version": "0.1.0",
+  "description": "A web application for managing, deploying, and syncing files across multiple Windows application servers.",
+  "main": "src/server.js",
+  "scripts": {
+    "db:ping": "node scripts/db_ping.js",
+    "db:demo": "node scripts/db_demo.js"
+   
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fas1406/syncward.git"
+  },
+  "keywords": ["sync", "deploy", "robocopy", "fleet"],
+  "author": "Farooq Azam",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/fas1406/syncward/issues"
+  },
+  "homepage": "https://github.com/fas1406/syncward#readme"
+}
