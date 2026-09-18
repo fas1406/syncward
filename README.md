@@ -1,4 +1,4 @@
-# Beacon
+# SyncWard
 
 A web application for managing, deploying, and syncing files across multiple Windows application servers.
 
