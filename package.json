@@ -5,8 +5,8 @@
   "main": "src/server.js",
   "scripts": {
     "db:ping": "node scripts/db_ping.js",
-    "db:demo": "node scripts/db_demo.js"
-   
+    "db:demo": "node scripts/db_demo.js",
+    "db:schema": "dotenv run -f .env -- psql -f db/schema.sql"
   },
   "repository": {
     "type": "git",
