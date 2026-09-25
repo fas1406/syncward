@@ -1,23 +1,20 @@
-// src/server.js
 const express = require('express');
-
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
-// Route 1 — the classic
-app.get('/hello', (req, res) => {
-  res.send('Hello from SyncWard!');
+app.get('/hello',(req,res)=>{
+    res.send('Hello Form SyncWard Team');
 });
 
-// Route 2 — prove it's running in real time
-app.get('/time', (req, res) => {
-  res.json({
-    now: new Date().toISOString(),
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-  });
+app.get('/time',(req,res)=>{
+    res.json({
+        now: new Date().toISOString(),
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        dt: Intl.DateTimeFormat('en-PK').format(new Date()),         
+        paktime: new Date().toString(),
+    })
 });
-console.log( Intl.DateTimeFormat().toString());
-// Route 3 — a version endpoint (useful later for health checks)
+
 app.get('/api/version', (req, res) => {
   res.json({
     name: 'syncward',
@@ -26,11 +23,6 @@ app.get('/api/version', (req, res) => {
   });
 });
 
-// Catch-all for anything else
-app.use((req, res) => {
-  res.status(404).json({ error: 'Not found', path: req.path });
-});
-
-app.listen(PORT, () => {
-  console.log(`🚀 SyncWard server listening on http://localhost:${PORT}`);
+app.listen(PORT,()=>{
+    console.log(`Server is running at :http://localhost:${PORT}`);
 });
