@@ -9,3 +9,10 @@ CREATE TABLE IF NOT EXISTS servers (
   enabled       BOOLEAN NOT NULL DEFAULT TRUE,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+CREATE TABLE users (
+	id serial4 NOT NULL,
+	username text NOT NULL,
+	password_hash text NOT NULL,
+	"role" text DEFAULT 'veiwer'::text NULL,
+	created_at timestamptz DEFAULT now() NOT NULL);

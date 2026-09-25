@@ -1,14 +1,13 @@
 // scripts/db-demo.js
 /*
-const dotenv = require('dotenv');
-dotenv.config();
+cst dotenv = require('dotenv');
+doteonnv.config();
 */
 // OR
 /*require('dotenv').config();
 const { Pool } = require('pg');
 const pool = new Pool({ connectionString: process.env.DATABASE_URL});*/
-
-const db = require('../src/db/pool.js'); 
+const db = require('../src/db/pool'); 
 
 async function main() {
    // INSERT
