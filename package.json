@@ -4,6 +4,8 @@
   "description": "A web application for managing, deploying, and syncing files across multiple Windows application servers.",
   "main": "src/server.js",
   "scripts": {
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
     "db:ping": "node scripts/db_ping.js",
     "db:demo": "node scripts/db_demo.js",
     "db:schema": "dotenv run -f .env -- psql -f db/schema.sql"
@@ -12,12 +14,25 @@
     "type": "git",
     "url": "git+https://github.com/fas1406/syncward.git"
   },
-  "keywords": ["sync", "deploy", "robocopy", "fleet"],
+  "keywords": [
+    "sync",
+    "deploy",
+    "robocopy",
+    "fleet"
+  ],
   "author": "Farooq Azam",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {
     "url": "https://github.com/fas1406/syncward/issues"
   },
-  "homepage": "https://github.com/fas1406/syncward#readme"
+  "homepage": "https://github.com/fas1406/syncward#readme",
+  "dependencies": {
+    "dotenv": "^18.0.3",
+    "express": "^5.2.1",
+    "pg": "^8.23.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
 }
