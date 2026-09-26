@@ -1,11 +1,10 @@
 const express = require('express');
 const app = express();
 const PORT = 3000;
-
-app.use(express.json());
+const serversRouter = require('./routes/servers');
 
 // Simple request Logger
-app.use((req,res, next) =>{
+app.use((req, res, next) =>{
     const start = Date.now();
     res.on('finish', () => {
         const ms = Date.now() - start;
@@ -14,6 +13,8 @@ app.use((req,res, next) =>{
     next();
 });
 
+// Parse JSON request bodies
+app.use(express.json());
 
 // Route 1 — the classic
 app.get('/hello',(req,res)=>{
@@ -39,6 +40,7 @@ app.get('/api/version', (req, res) => {
   });
 });
 
+/////////////////// exmaple and exercise routes /////////////////////////////
 // pong route
 app.get('/ping', (req, res) => res.json({ pong: true }));
 
@@ -66,7 +68,6 @@ app.get('/servers/:name', (req, res) => {
   });
 });
 
-/////////////   exercise routes    /////////////////////
 app.get('/health', (req,res) => {
     const sec = Math.round(process.uptime()); 
     res.json({
@@ -75,12 +76,12 @@ app.get('/health', (req,res) => {
     });
 });
 
-app.get('/api/servers/:name', (req, res) => {
-    res.json({
-        name : req.params.name.toUpperCase(),
-        status: 'placeholder'
-    });
-});
+// app.get('/api/servers/:name', (req, res) => {
+//     res.json({
+//         name : req.params.name.toUpperCase(),
+//         status: 'placeholder'
+//     });
+// });
 
 app.post('/echo',(req,res) => {
    const message = req.body?.message;
@@ -91,7 +92,11 @@ app.post('/echo',(req,res) => {
     res.json({received: message, length: message.length});
    }
 })
+/////////////  /////Ends //////   /////////////////////
 
+// Mount routers
+
+app.use('/api/servers', serversRouter);
 
 // Catch-all for anything else
 app.use((req,res) =>{
