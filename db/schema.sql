@@ -1,3 +1,6 @@
+-- db/schema.sql (updated)
+-- Run this to (re)create the syncward schema in a fresh database.
+
 CREATE TABLE IF NOT EXISTS servers (
   id            SERIAL PRIMARY KEY,
   name          TEXT UNIQUE NOT NULL,
@@ -10,9 +13,11 @@ CREATE TABLE IF NOT EXISTS servers (
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
-CREATE TABLE users (
-	id serial4 NOT NULL,
-	username text NOT NULL,
-	password_hash text NOT NULL,
-	"role" text DEFAULT 'veiwer'::text NULL,
-	created_at timestamptz DEFAULT now() NOT NULL);
+CREATE TABLE IF NOT EXISTS users (
+  id            SERIAL PRIMARY KEY,
+  username      TEXT UNIQUE NOT NULL,
+  password_hash TEXT NOT NULL,
+  role          TEXT NOT NULL DEFAULT 'viewer'
+                CHECK (role IN ('viewer', 'operator', 'admin')),
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

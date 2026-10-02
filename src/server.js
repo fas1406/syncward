@@ -1,7 +1,12 @@
 const express = require('express');
 const app = express();
 const PORT = 3000;
+
+const { requireAuth, requireRole } = require('./auth/middleware');
+
+// Mount routers
 const serversRouter = require('./routes/servers');
+const authRouter = require('./routes/auth');
 
 // Simple request Logger
 app.use((req, res, next) =>{
@@ -94,9 +99,13 @@ app.post('/echo',(req,res) => {
 })
 /////////////  /////Ends //////   /////////////////////
 
-// Mount routers
+// Mount routersapp
 
-app.use('/api/servers', serversRouter);
+app.use('/api/auth', authRouter); // login/register must be open
+
+//app.use('/api/servers', serversRouter);
+app.use('/api/servers', requireAuth, serversRouter); // requires login
+
 
 // Catch-all for anything else
 app.use((req,res) =>{

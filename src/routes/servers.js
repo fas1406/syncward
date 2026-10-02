@@ -3,6 +3,7 @@ const express = require('express');
 const db = require('../db/pool');
 
 const router = express.Router();
+const { requireRole } = require('../auth/middleware');
 
 // GET /api/servers — list all servers
 router.get('/', async (req, res) => {
@@ -75,9 +76,8 @@ router.get('/:idorrole', async (req, res) => {
 });
 
 
-
 // POST /api/servers — create a new server
-router.post('/', async (req, res) => {
+router.post('/',requireRole('operator', 'admin'), async (req, res) => {
     console.log(req.body);
   const { name, host, remote_path, backup_path, service_name, role, enabled } = req.body || {};
 
@@ -115,7 +115,7 @@ router.post('/', async (req, res) => {
 });
 
 // PATCH /api/servers/:id — update fields
-router.patch('/:id', async (req, res) => {
+router.patch('/:id',requireRole('operator', 'admin'), async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) {
     return res.status(400).json({ error: 'Invalid id' });
@@ -154,7 +154,7 @@ router.patch('/:id', async (req, res) => {
 });
 
 // DELETE /api/servers/:id
-router.delete('/:id', async (req, res) => {
+router.delete('/:id',requireRole('admin'), async (req, res) => {
   const id = Number(req.params.id);
   if (!Number.isInteger(id)) {
     return res.status(400).json({ error: 'Invalid id' });
