@@ -1,3 +1,4 @@
+// src/server.js
 const express = require('express');
 const app = express();
 const PORT = 3000;
@@ -5,8 +6,11 @@ const PORT = 3000;
 const { requireAuth, requireRole } = require('./auth/middleware');
 
 // Mount routers
-const serversRouter = require('./routes/servers');
 const authRouter = require('./routes/auth');
+const serversRouter = require('./routes/servers');
+const jobsRouter = require('./routes/jobs');
+
+
 
 // Simple request Logger
 app.use((req, res, next) =>{
@@ -106,6 +110,7 @@ app.use('/api/auth', authRouter); // login/register must be open
 //app.use('/api/servers', serversRouter);
 app.use('/api/servers', requireAuth, serversRouter); // requires login
 
+app.use('/api/jobs', jobsRouter);  // already has auth inside
 
 // Catch-all for anything else
 app.use((req,res) =>{
