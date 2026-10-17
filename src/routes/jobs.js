@@ -36,7 +36,7 @@ const payloadValidators = {
 
 // POST /api/jobs — create a new job
 router.post('/', requireRole('operator', 'admin'), async (req, res) => {
-  const { type, payload } = req.body || {};
+  const { type, payload, delayMs  } = req.body || {};
 
   if (!type || typeof type !== 'string') {
     return res.status(400).json({ error: 'type is required' });
@@ -50,11 +50,21 @@ router.post('/', requireRole('operator', 'admin'), async (req, res) => {
     return res.status(400).json({ error: validationError });
   }
 
+  // Validate delayMs if provided
+  if (delayMs !== undefined) {
+    if (!Number.isInteger(delayMs) || delayMs < 0 || delayMs > 86_400_000) {
+      return res.status(400).json({
+        error: 'delayMs must be an integer between 0 and 86400000 (24 hours)',
+      });
+    }
+  }
+
   try {
     const job = await createJob({
       type,
       payload: payload || {},
       createdBy: req.user.id,
+      delayMs
     });
     // 202 Accepted — we've accepted the request but haven't done it yet
     res.status(202).json(job);

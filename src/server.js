@@ -10,11 +10,14 @@ const authRouter = require('./routes/auth');
 const serversRouter = require('./routes/servers');
 const jobsRouter = require('./routes/jobs');
 
+// Warm up Redis connection on startup
+require('./queue');
 
 
 // Simple request Logger
 app.use((req, res, next) =>{
     const start = Date.now();
+     console.log(`${req.method} ${req.path} -> (${start})`);
     res.on('finish', () => {
         const ms = Date.now() - start;
         console.log(`${req.method} ${req.path} -> ${res.statusCode} (${ms}ms)`);
@@ -80,8 +83,8 @@ app.get('/servers/:name', (req, res) => {
 app.get('/health', (req,res) => {
     const sec = Math.round(process.uptime()); 
     res.json({
-        status : 'Ok',
-        uptime : `${sec}`
+        status: 'Ok',
+        uptime: `${sec}`
     });
 });
 
@@ -96,7 +99,7 @@ app.post('/echo',(req,res) => {
    const message = req.body?.message;
 
    if (message === undefined){
-    res.json({error: 'Bad Request', reason : "Missing 'messgae' in request body or incorrect Content-Type header."});
+    res.json({error: 'Bad Request', reason: "Missing 'messgae' in request body or incorrect Content-Type header."});
    } else{
     res.json({received: message, length: message.length});
    }
@@ -120,7 +123,7 @@ app.use((req,res) =>{
 });
 
 const server = app.listen(PORT,()=>{
-    console.log(`Server is running at :http://localhost:${PORT}`);
+    console.log(`Server is running at: http://localhost:${PORT}`);
 });
 
 server.on('error', (err) => { 
