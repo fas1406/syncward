@@ -5,6 +5,7 @@ const { Worker } = require('bullmq');
 const chalk = require('chalk');
 const db = require('./db/pool');
 const { connection } = require('./queue');
+const { publishEvent } = require('./ws/broadcast');
 
 /**
  * Handle a job. Throws on failure.
@@ -28,6 +29,8 @@ async function handleJob(bullJob) {
     `UPDATE jobs SET status='running', started_at=NOW() WHERE id=$1`,
     [dbJobId]
   );
+  //websocket ws server publish
+  await publishEvent('job.status', { jobId: dbJobId, status: 'running', type: dbJob.type });
 
   // 3. Do the work — simulate for now
   // const steps = 5;
@@ -79,8 +82,10 @@ const worker = new Worker('jobs', handleJob, {
   concurrency: 1,
 });
 
-worker.on('completed', (job) => {
+worker.on('completed', async (job) => {
   console.log(chalk.green(`✓ BullMQ job ${job.id} completed`));
+  const dbJobId = job.data.jobId;
+  await publishEvent('job.status', { jobId: dbJobId, status: 'succeeded' });
 });
 
 worker.on('failed', async (job, err) => {
@@ -89,6 +94,7 @@ worker.on('failed', async (job, err) => {
 
   if (isFinalAttempt && job?.data?.jobId) {
     try {
+      await publishEvent('job.status', { jobId: dbJobId, status: 'failed', error: err.message });
       await db.query(
         `UPDATE jobs SET status='failed', error=$1, finished_at=NOW() WHERE id=$2`,
         [err.message, job.data.jobId]

@@ -1,4 +1,5 @@
 // src/server.js
+const http = require('http'); // ADD THIS AT THE TOP
 const express = require('express');
 const app = express();
 const PORT = 3000;
@@ -107,6 +108,7 @@ app.post('/echo',(req,res) => {
 /////////////  /////Ends //////   /////////////////////
 
 // Mount routersapp
+app.use(express.static('public'));
 
 app.use('/api/auth', authRouter); // login/register must be open
 
@@ -122,9 +124,22 @@ app.use((req,res) =>{
     });
 });
 
-const server = app.listen(PORT,()=>{
-    console.log(`Server is running at: http://localhost:${PORT}`);
+// 1. Create the HTTP server explicitly
+const server = http.createServer(app);
+
+// 2. Attach WebSocket to it
+const { setupWebSocket } = require('./ws/server');
+setupWebSocket(server);
+
+// 3. Listen using the HTTP server, not the Express app
+server.listen(PORT, () => {
+  console.log(`🚀 SyncWard server listening on http://localhost:${PORT}`);
+  console.log(`🔌 WebSocket listening on ws://localhost:${PORT}/ws`);
 });
+
+// const server = app.listen(PORT,()=>{
+//     console.log(`Server is running at: http://localhost:${PORT}`);
+// });
 
 server.on('error', (err) => { 
     if (err.code === 'EADDRINUSE'){

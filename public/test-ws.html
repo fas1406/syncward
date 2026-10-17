@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WebSocket Test</title>
+  <style>
+    body { font-family: monospace; padding: 20px; background: #1e1e1e; color: #ccc; }
+    #logs { border: 1px solid #444; height: 400px; overflow-y: scroll; padding: 10px; }
+    .success { color: #4caf50; }
+    .error { color: #f44336; }
+    .info { color: #2196f3; }
+  </style>
+</head>
+<body>
+  <h2>SyncWard Live Events</h2>
+  <button onclick="connect()">Connect to WebSocket</button>
+  <div id="logs"></div>
+
+  <script>
+    let ws;
+
+    function connect() {
+      // 1. Get the token from your Postman login
+      const token = prompt("Paste your JWT token:");
+      if (!token) return;
+
+      // 2. Connect to the WebSocket
+      ws = new WebSocket(`ws://localhost:3000/ws?token=${token}`);
+
+      ws.onopen = () => log("Connected to WebSocket", "success");
+      
+      ws.onmessage = (event) => {
+        const msg = JSON.parse(event.data);
+        log(`EVENT: ${msg.eventType} -> Job #${msg.data.jobId} is ${msg.data.status}`, "info");
+        log(JSON.stringify(msg, null, 2), "info");
+      };
+
+      ws.onerror = () => log("WebSocket error", "error");
+      
+      ws.onclose = () => log("Disconnected", "error");
+    }
+
+    function log(msg, className) {
+      const div = document.createElement('div');
+      div.className = className;
+      div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      document.getElementById('logs').appendChild(div);
+      div.scrollIntoView();
+    }
+  </script>
+</body>
+</html>
