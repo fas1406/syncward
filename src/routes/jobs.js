@@ -10,7 +10,7 @@ const router = express.Router();
 router.use(requireAuth);
 
   // Whitelist of allowed job types (for now)
-const ALLOWED_TYPES = ['noop', 'sleep'];
+const ALLOWED_TYPES = ['noop','sync','sleep'];
 
 // ─── Per-type payload validators ─────────────────────────────
 // Each returns null if valid, or an error string if invalid.
@@ -31,6 +31,12 @@ const payloadValidators = {
     }
     return null;
   },
+  sync: (payload) => {
+    if (!payload || !payload.source || !payload.target) {
+      return 'Sync jobs require source and target in payload';
+    }
+    return null; // return null if validation passes
+  }
 };
 
 
@@ -45,10 +51,15 @@ router.post('/', requireRole('operator', 'admin'), async (req, res) => {
  if (!ALLOWED_TYPES.includes(type)) {
     return res.status(400).json({ error: `type must be one of: ${ALLOWED_TYPES.join(', ')}` });
   }
-  const validationError = payloadValidators[type](payload);
-  if (validationError) {
-    return res.status(400).json({ error: validationError });
-  }
+  const validator = payloadValidators[type];
+if (typeof validator !== 'function') {
+  return res.status(500).json({ error: `Server configuration error: No validator defined for job type "${type}"` });
+}
+
+const validationError = validator(payload);
+if (validationError) {
+  return res.status(400).json({ error: validationError });
+}
 
   // Validate delayMs if provided
   if (delayMs !== undefined) {

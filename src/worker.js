@@ -1,5 +1,6 @@
 // src/worker.js
 require('dotenv').config();
+const { handleSync } = require('./services/sync-handler');
 const { Worker } = require('bullmq');
 const chalk = require('chalk');
 const db = require('./db/pool');
@@ -29,22 +30,44 @@ async function handleJob(bullJob) {
   );
 
   // 3. Do the work — simulate for now
-  const steps = 5;
-  for (let i = 1; i <= steps; i++) {
-    await sleep(500);
-    await bullJob.updateProgress(Math.round((i / steps) * 100));
-    console.log(chalk.gray(`  step ${i}/${steps}`));
+  // const steps = 5;
+  // for (let i = 1; i <= steps; i++) {
+  //   await sleep(500);
+  //   await bullJob.updateProgress(Math.round((i / steps) * 100));
+  //   console.log(chalk.gray(`  step ${i}/${steps}`));
 
-  }
+  // }
+  let result;
+
+  try {
+    if (dbJob.type === 'noop') {
+      // Simulate work
+      await new Promise((r) => setTimeout(r, 2000));
+      result = { stepsCompleted: 1, note: 'noop completed' };
+      
+    } else if (dbJob.type === 'sync') {
+      // Real work
+      result = await handleSync(dbJob, bullJob);
+      
+    } else {
+      throw new Error(`Unknown job type: ${dbJob.type}`);
+    }
 
   // 4. Mark succeeded in Postgres
   await db.query(
-    `UPDATE jobs SET status='succeeded', result=$1, finished_at=NOW() WHERE id=$2`,
-    [{ stepsCompleted: steps, note: 'noop completed' }, dbJobId]
-  );
+      `UPDATE jobs SET status='succeeded', result=$1, finished_at=NOW() WHERE id=$2`,
+      [result, dbJobId]
+    );
 
-  return { stepsCompleted: steps };
+  return result;
+
+} catch (err) {
+    // We let BullMQ handle the error/retry logic.
+    // We do NOT mark the DB as failed here (the worker 'failed' event handles that on final attempt).
+    throw err; 
+  }
 }
+
 
 function sleep(ms) {
   return new Promise((r) => setTimeout(r, ms));
