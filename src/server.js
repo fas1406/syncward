@@ -3,7 +3,12 @@ const http = require('http'); // ADD THIS AT THE TOP
 const express = require('express');
 const app = express();
 const PORT = 3000;
+const cors = require('cors');
 
+app.use(cors({
+  origin: 'http://localhost:5173', // Allow the React app
+  credentials: true                // Allow cookies/auth headers
+}));
 const { requireAuth, requireRole } = require('./auth/middleware');
 
 // Mount routers
